@@ -23,6 +23,7 @@
 #define B_CFG_PORT          5
 #define B_RELAY1_PORT       4
 #define B_RELAY2_PORT      13
+#define B_RELAY3_PORT      16
 
 #define B_SENSOR_PORT1     12
 #define B_SENSOR_PORT2     14
@@ -41,11 +42,11 @@ void ICACHE_FLASH_ATTR supla_esp_board_gpio_init(void) {
 	
 	supla_input_cfg[1].type = INPUT_TYPE_SENSOR;
 	supla_input_cfg[1].gpio_id = B_SENSOR_PORT1;
-	supla_input_cfg[1].channel = 2;
+	supla_input_cfg[1].channel = 3;
 	
 	supla_input_cfg[2].type = INPUT_TYPE_SENSOR;
 	supla_input_cfg[2].gpio_id = B_SENSOR_PORT2;
-	supla_input_cfg[2].channel = 3;
+	supla_input_cfg[2].channel = 4;
 	
 	// ---------------------------------------
 	// ---------------------------------------
@@ -57,12 +58,16 @@ void ICACHE_FLASH_ATTR supla_esp_board_gpio_init(void) {
     supla_relay_cfg[1].gpio_id = B_RELAY2_PORT;
     supla_relay_cfg[1].flags = RELAY_FLAG_RESET;
     supla_relay_cfg[1].channel = 1;
+	
+    supla_relay_cfg[2].gpio_id = B_RELAY3_PORT;
+    supla_relay_cfg[2].flags = RELAY_FLAG_RESET;
+    supla_relay_cfg[2].channel = 2;
 
 }
 
 void ICACHE_FLASH_ATTR supla_esp_board_set_channels(TDS_SuplaDeviceChannel_B *channels, unsigned char *channel_count) {
 	
-    *channel_count = 5;
+    *channel_count = 6;
 
 	channels[0].Number = 0;
 	channels[0].Type = SUPLA_CHANNELTYPE_RELAY;
@@ -79,12 +84,14 @@ void ICACHE_FLASH_ATTR supla_esp_board_set_channels(TDS_SuplaDeviceChannel_B *ch
 	channels[1].Default = channels[0].Default;
 	channels[1].value[0] = supla_esp_gpio_relay_on(B_RELAY2_PORT);
 
-	channels[2].Number = 2;
-	channels[2].Type = SUPLA_CHANNELTYPE_SENSORNO;
-	channels[2].FuncList = 0;
-	channels[2].Default = 0;
-	channels[2].value[0] = 0;
-
+	channels[2].Default = 2;
+	channels[2].Type = SUPLA_CHANNELTYPE_RELAY;
+        channels[2].FuncList = SUPLA_BIT_RELAYFUNC_POWERSWITCH \
+								| SUPLA_BIT_RELAYFUNC_LIGHTSWITCH;
+        channels[2].Default = SUPLA_CHANNELFNC_POWERSWITCH;
+	channels[2].value[0] = supla_esp_gpio_relay_on(B_RELAY3_PORT);
+        
+	
 	channels[3].Number = 3;
 	channels[3].Type = SUPLA_CHANNELTYPE_SENSORNO;
 	channels[3].FuncList = 0;
@@ -92,23 +99,29 @@ void ICACHE_FLASH_ATTR supla_esp_board_set_channels(TDS_SuplaDeviceChannel_B *ch
 	channels[3].value[0] = 0;
 
 	channels[4].Number = 4;
+	channels[4].Type = SUPLA_CHANNELTYPE_SENSORNO;
+	channels[4].FuncList = 0;
+	channels[4].Default = 0;
+	channels[4].value[0] = 0;
+
+	channels[5].Number = 5;
 
 	#if defined(__BOARD_gate_module_dht11)
-		channels[4].Type = SUPLA_CHANNELTYPE_DHT11;
+		channels[5].Type = SUPLA_CHANNELTYPE_DHT11;
 	#elif defined(__BOARD_gate_module_dht22)
-		channels[4].Type = SUPLA_CHANNELTYPE_DHT22;
+		channels[5].Type = SUPLA_CHANNELTYPE_DHT22;
 	#else
-		channels[4].Type = SUPLA_CHANNELTYPE_THERMOMETERDS18B20;
+		channels[5].Type = SUPLA_CHANNELTYPE_THERMOMETERDS18B20;
 	#endif
 
 
-	channels[4].FuncList = 0;
-	channels[4].Default = 0;
+	channels[5].FuncList = 0;
+	channels[5].Default = 0;
 
     #if defined(__BOARD_gate_module_dht11) || defined(__BOARD_gate_module_dht22)
-	supla_get_temp_and_humidity(channels[4].value);
+	supla_get_temp_and_humidity(channels[5].value);
 	#else
-	supla_get_temperature(channels[4].value);
+	supla_get_temperature(channels[5].value);
 	#endif
 
 
@@ -116,7 +129,7 @@ void ICACHE_FLASH_ATTR supla_esp_board_set_channels(TDS_SuplaDeviceChannel_B *ch
 
 void ICACHE_FLASH_ATTR supla_esp_board_send_channel_values_with_delay(void *srpc) {
 
-	supla_esp_channel_value_changed(2, gpio__input_get(B_SENSOR_PORT1));
-	supla_esp_channel_value_changed(3, gpio__input_get(B_SENSOR_PORT2));
+	supla_esp_channel_value_changed(3, gpio__input_get(B_SENSOR_PORT1));
+	supla_esp_channel_value_changed(4, gpio__input_get(B_SENSOR_PORT2));
 
 }
