@@ -24,10 +24,10 @@
 #if defined(__BOARD_gate_module_dht11) \
     || defined(__BOARD_gate_module_dht22)
    #define DHTSENSOR
-   #define TEMPERATURE_HUMIDITY_CHANNEL 4
+   #define TEMPERATURE_HUMIDITY_CHANNEL 5
 #else
    #define DS18B20
-   #define TEMPERATURE_CHANNEL 4
+   #define TEMPERATURE_CHANNEL 5
 #endif
 
 
