@@ -85,10 +85,9 @@ void ICACHE_FLASH_ATTR supla_esp_board_set_channels(TDS_SuplaDeviceChannel_B *ch
 	channels[1].value[0] = supla_esp_gpio_relay_on(B_RELAY2_PORT);
 
 	channels[2].Number = 2;
-	channels[2].Type = SUPLA_CHANNELTYPE_RELAY;
-        channels[2].FuncList = SUPLA_BIT_RELAYFUNC_POWERSWITCH \
-								| SUPLA_BIT_RELAYFUNC_LIGHTSWITCH;
-        channels[2].Default = SUPLA_CHANNELFNC_POWERSWITCH;
+	channels[2].Type = channels[0].Type;
+        channels[2].FuncList = channels[0].FuncList;
+        channels[2].Default = channels[0].Default;
 	channels[2].value[0] = supla_esp_gpio_relay_on(B_RELAY3_PORT);
         
 	
